@@ -8,35 +8,64 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
+    // public function index(Request $request)
+    // {
+    //     $perPage = $request->get('perPage', 5);
+    //     $search = $request->get('search');
+    //     $classroomId = $request->get('classroom_id'); // Ambil filter kelas
+    //     $status = $request->get('status', 'active');
+
+    //     $students = Student::with('classroom')
+    //         ->when($search, function ($query, $search) {
+    //             return $query->where(function ($q) use ($search) {
+    //                 $q->where('name', 'like', "%{$search}%")
+    //                     ->orWhere('nisn', 'like', "%{$search}%");
+    //             });
+    //         })
+    //         ->when($classroomId, function ($query, $classroomId) {
+    //             return $query->where('classrooms_id', $classroomId); // Filter berdasarkan ID kelas
+    //         })
+    //         ->where('status', $status)
+    //         ->orderBy('name', 'asc')
+    //         ->paginate($perPage)
+    //         ->withQueryString();
+
+    //     $classrooms = Classroom::orderBy('classroom', 'asc')->get();
+
+    //     return view('pages.students.index', compact('students', 'classrooms'));
+    // }
+
     public function index(Request $request)
-    {
-        $perPage = $request->get('perPage', 5);
-        $search = $request->get('search');
-        $classroomId = $request->get('classroom_id'); // Ambil filter kelas
-        $status = $request->get('status', 'active');
+{
+    $perPage = $request->get('perPage', 5);
+    $search = $request->get('search');
+    $classroomId = $request->get('classroom_id'); 
+    $status = $request->get('status', 'active');
 
-        $students = Student::with('classroom')
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('nisn', 'like', "%{$search}%");
-                });
-            })
-            ->when($classroomId, function ($query, $classroomId) {
-                return $query->where('classrooms_id', $classroomId); // Filter berdasarkan ID kelas
-            })
-            ->where('status', $status)
-            ->orderBy('name', 'asc')
-            ->paginate($perPage)
-            ->withQueryString();
+    $students = Student::with('classroom')
+        ->when($search, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('nisn', 'like', "%{$search}%");
+            });
+        })
+        ->when($classroomId, function ($query, $classroomId) {
+            return $query->where('classrooms_id', $classroomId); 
+        })
+        ->where('status', $status)
+        ->orderBy('name', 'asc')
+        ->paginate($perPage)
+        ->withQueryString();
 
-        $classrooms = Classroom::orderBy('classroom', 'asc')->get();
+    $classrooms = Classroom::orderBy('classroom', 'asc')->get();
+    $kelass = $classrooms; // <-- Tambahkan baris ini
 
-        return view('pages.students.index', compact('students', 'classrooms'));
-    }
+    return view('pages.students.index', compact('students', 'classrooms', 'kelass')); // <-- Tambahkan 'kelass'
+}
     public function imports(Request $request)
     {
         $request->validate([
@@ -95,6 +124,207 @@ class StudentController extends Controller
 
         return redirect()->back()->with('success', 'Data siswa berhasil dihapus.');
     }
+
+// public function naikKelas(Request $request)
+// {
+//     DB::beginTransaction();
+
+//     try {
+//         // 1. UBAH STATUS SISWA KELAS XII MENJADI 'lulus'
+//         $kelasXII_ids = Classroom::whereIn('classroom', ['XII', '12'])->pluck('id');
+//         $lulusCount = Student::whereIn('classrooms_id', $kelasXII_ids)
+//             ->where('status', 'active')
+//             ->update(['status' => 'lulus']);
+
+
+//         // 2. NAIKKAN SISWA KELAS XI -> XII (Langsung Otomatis Karena Jurusan Sudah Sama)
+//         $kelasXI = Classroom::whereIn('classroom', ['XI', '11'])->get();
+//         $xiToXiiCount = 0;
+
+//         foreach ($kelasXI as $kelasAsal) {
+//             $kelasTujuan = Classroom::whereIn('classroom', ['XII', '12'])
+//                 ->where('code_classroom', $kelasAsal->code_classroom)
+//                 ->first();
+
+//             if ($kelasTujuan) {
+//                 $xiToXiiCount += Student::where('classrooms_id', $kelasAsal->id)
+//                     ->where('status', 'active')
+//                     ->update(['classrooms_id' => $kelasTujuan->id]);
+//             }
+//         }
+
+
+//         // 3. NAIKKAN SISWA KELAS X -> XI (KECUALI Jurusan Yang Butuh Ploting)
+//         // Pemetaan Jurusan Otomatis (Non-Ploting)
+//         $jurusanAutoMap = [
+//             'AKL'  => 'AKL',
+//             'DPIB' => 'DPIB',
+//             'TJKT' => 'TKJ',
+//         ];
+
+//         $kelasX = Classroom::whereIn('classroom', ['X', '10'])->get();
+//         $xToXiCount = 0;
+
+//         foreach ($kelasX as $kelasAsal) {
+//             $kodeAsal = trim($kelasAsal->code_classroom);
+
+//             // JIKA JURUSAN ATN / ATK -> LEWATI (Akan di-plot manual)
+//             if (in_array($kodeAsal, ['ATN', 'ATK'])) {
+//                 continue; 
+//             }
+
+//             // Jika jurusan terdaftar di AutoMap
+//             if (isset($jurusanAutoMap[$kodeAsal])) {
+//                 $targetCode = $jurusanAutoMap[$kodeAsal];
+
+//                 $kelasTujuan = Classroom::whereIn('classroom', ['XI', '11'])
+//                     ->where('code_classroom', $targetCode)
+//                     ->first();
+
+//                 if ($kelasTujuan) {
+//                     $xToXiCount += Student::where('classrooms_id', $kelasAsal->id)
+//                         ->where('status', 'active')
+//                         ->update(['classrooms_id' => $kelasTujuan->id]);
+//                 }
+//             }
+//         }
+
+//         DB::commit();
+
+//         $total = $lulusCount + $xiToXiiCount + $xToXiCount;
+
+//         return redirect()->back()->with(
+//             'success', 
+//             "Proses selesai! {$total} siswa berhasil diproses ({$lulusCount} Lulus, {$xiToXiiCount} Naik XII, {$xToXiCount} Naik XI). Catatan: Siswa kelas X ATN & ATK belum dipindahkan dan siap untuk di-ploting manual."
+//         );
+
+//     } catch (\Exception $e) {
+//         DB::rollBack();
+//         return redirect()->back()->with('error', 'Gagal memproses: ' . $e->getMessage());
+//     }
+// }
+
+public function naikKelas(Request $request)
+{
+    DB::beginTransaction();
+
+    try {
+        // =========================================================================
+        // SKENARIO 1: BULK PINDAH KELAS SPESIFIK (Berdasarkan Centang Checkbox)
+        // =========================================================================
+        if ($request->action_type === 'bulk_selected') {
+            $request->validate([
+                'student_ids' => 'required|array',
+                'student_ids.*' => 'exists:students,id',
+                'to_classroom_id' => 'required|exists:classrooms,id',
+            ], [
+                'student_ids.required' => 'Pilih setidaknya satu siswa untuk dipindahkan.',
+                'to_classroom_id.required' => 'Pilih kelas tujuan pemindahan.',
+            ]);
+
+            $movedCount = Student::whereIn('id', $request->student_ids)
+                ->update(['classrooms_id' => $request->to_classroom_id]);
+
+            DB::commit();
+
+            return redirect()->back()->with(
+                'success', 
+                "Berhasil memindahkan {$movedCount} siswa terpilih ke kelas tujuan."
+            );
+        }
+
+        // =========================================================================
+        // SKENARIO 2: KENAIKAN KELAS MASAL OTOMATIS (Satu Sekolah)
+        // =========================================================================
+        
+        // 1. UBAH STATUS SISWA KELAS XII MENJADI 'lulus'
+        $kelasXII_ids = Classroom::whereIn('classroom', ['XII', '12'])->pluck('id');
+        $lulusCount = Student::whereIn('classrooms_id', $kelasXII_ids)
+            ->where('status', 'active')
+            ->update(['status' => 'lulus']);
+
+        // 2. NAIKKAN SISWA KELAS XI -> XII (Langsung Otomatis Karena Jurusan Sudah Sama)
+        $kelasXI = Classroom::whereIn('classroom', ['XI', '11'])->get();
+        $xiToXiiCount = 0;
+
+        foreach ($kelasXI as $kelasAsal) {
+            $kelasTujuan = Classroom::whereIn('classroom', ['XII', '12'])
+                ->where('code_classroom', $kelasAsal->code_classroom)
+                ->first();
+
+            if ($kelasTujuan) {
+                $xiToXiiCount += Student::where('classrooms_id', $kelasAsal->id)
+                    ->where('status', 'active')
+                    ->update(['classrooms_id' => $kelasTujuan->id]);
+            }
+        }
+
+        // 3. NAIKKAN SISWA KELAS X -> XI (KECUALI Jurusan Yang Butuh Ploting)
+        // Pemetaan Jurusan Otomatis (Non-Ploting)
+        $jurusanAutoMap = [
+            'AKL'  => 'AKL',
+            'DPIB' => 'DPIB',
+            'TJKT' => 'TKJ',
+        ];
+
+        $kelasX = Classroom::whereIn('classroom', ['X', '10'])->get();
+        $xToXiCount = 0;
+
+        foreach ($kelasX as $kelasAsal) {
+            $kodeAsal = trim($kelasAsal->code_classroom);
+
+            // JIKA JURUSAN ATN / ATK -> LEWATI (Akan di-plot manual lewat Bulk Checkbox)
+            if (in_array($kodeAsal, ['ATN', 'ATK'])) {
+                continue; 
+            }
+
+            // Jika jurusan terdaftar di AutoMap
+            if (isset($jurusanAutoMap[$kodeAsal])) {
+                $targetCode = $jurusanAutoMap[$kodeAsal];
+
+                $kelasTujuan = Classroom::whereIn('classroom', ['XI', '11'])
+                    ->where('code_classroom', $targetCode)
+                    ->first();
+
+                if ($kelasTujuan) {
+                    $xToXiCount += Student::where('classrooms_id', $kelasAsal->id)
+                        ->where('status', 'active')
+                        ->update(['classrooms_id' => $kelasTujuan->id]);
+                }
+            }
+        }
+
+        DB::commit();
+
+        $total = $lulusCount + $xiToXiiCount + $xToXiCount;
+
+        return redirect()->back()->with(
+            'success', 
+            "Proses selesai! {$total} siswa berhasil diproses ({$lulusCount} Lulus, {$xiToXiiCount} Naik XII, {$xToXiCount} Naik XI). Catatan: Siswa kelas X ATN & ATK belum dipindahkan dan siap untuk di-ploting manual."
+        );
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->with('error', 'Gagal memproses: ' . $e->getMessage());
+    }
+}
+
+// Method untuk memproses ploting siswa terpilih ke kelas XI tujuan
+public function processPloting(Request $request)
+{
+    $request->validate([
+        'target_classroom_id' => 'required|exists:classrooms,id',
+        'student_ids' => 'required|array',
+        'student_ids.*' => 'exists:students,id',
+    ]);
+
+    Student::whereIn('id', $request->student_ids)
+        ->update(['classrooms_id' => $request->target_classroom_id]);
+
+    return redirect()->back()->with('success', count($request->student_ids) . ' siswa berhasil di-ploting ke kelas tujuan!');
+}
+
+
 
     public function indexWakel(Request $request)
     {

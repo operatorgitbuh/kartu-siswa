@@ -53,6 +53,8 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/students/imports', [StudentController::class, 'imports'])->name('students.imports');
         Route::resource('/students', StudentController::class);
+        Route::post('/students/naik-kelas', [StudentController::class, 'naikKelas'])->name('students.naik-kelas');
+        Route::post('/students/process-ploting', [StudentController::class, 'processPloting'])->name('students.process-ploting');
 
         Route::resource('schools', SchoolController::class)->only(['index', 'update']);
 
