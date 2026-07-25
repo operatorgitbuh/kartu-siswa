@@ -421,65 +421,6 @@
             </nav>
 
             <div class="flex items-center gap-3">
-                <div class="relative hidden sm:block" x-data="{ notifOpen: false }">
-                    <button @click="notifOpen = !notifOpen" @click.away="notifOpen = false"
-                        class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all relative">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
-                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-
-                        <span
-                            class="absolute top-2 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
-                    </button>
-
-                    <div x-show="notifOpen" x-cloak x-transition.origin.top.right
-                        class="absolute right-0 mt-2 w-80 rounded-2xl bg-white border border-slate-100 shadow-xl z-50 overflow-hidden">
-
-                        <div class="px-4 py-3 border-b border-slate-50 bg-slate-50/50">
-                            <h3 class="text-sm font-bold text-slate-800">Notifikasi</h3>
-                        </div>
-
-                        <div class="max-h-80 overflow-y-auto">
-                            <a href="#"
-                                class="block px-4 py-3 hover:bg-slate-50 transition border-b border-slate-50 last:border-0">
-                                <div class="flex gap-3">
-                                    <div
-                                        class="h-8 w-8 rounded-full bg-indigo-100 flex-shrink-0 flex items-center justify-center text-indigo-600">
-                                        <i class="fas fa-user-plus text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-slate-800 line-clamp-2">Ada user baru yang mendaftar
-                                            sebagai Wali Kelas.</p>
-                                        <p class="text-[10px] text-slate-400 mt-1">2 menit yang lalu</p>
-                                    </div>
-                                </div>
-                            </a>
-
-                            <a href="#"
-                                class="block px-4 py-3 hover:bg-slate-50 transition border-b border-slate-50 last:border-0">
-                                <div class="flex gap-3">
-                                    <div
-                                        class="h-8 w-8 rounded-full bg-emerald-100 flex-shrink-0 flex items-center justify-center text-emerald-600">
-                                        <i class="fas fa-check-circle text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-slate-800 line-clamp-2">Laporan presensi bulan Maret
-                                            berhasil diekspor.</p>
-                                        <p class="text-[10px] text-slate-400 mt-1">1 jam yang lalu</p>
-                                    </div>
-                                </div>
-                            </a>
-
-                        </div>
-
-                        <a href="#"
-                            class="block py-2.5 text-center text-xs font-semibold text-indigo-600 bg-slate-50 hover:bg-slate-100 transition">
-                            Lihat Semua Notifikasi
-                        </a>
-                    </div>
-                </div>
 
                 <div class="relative hidden lg:block" x-data="{ profileOpen: false }">
                     <button @click="profileOpen = !profileOpen" @click.away="profileOpen = false"
