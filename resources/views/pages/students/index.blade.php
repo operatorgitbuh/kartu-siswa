@@ -210,8 +210,15 @@
                 <thead class="bg-slate-50/80">
                     <tr>
                         <!-- CHECKBOX SELECT ALL -->
-                        <th class="px-4 py-4 text-center w-10">
-                            <input type="checkbox" @click="toggleAll()" :checked="selectAll" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer">
+                        <th class="px-4 py-3 text-center w-10">
+                            <div class="flex flex-col items-center justify-center gap-1">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">All</span>
+                                <input 
+                                    type="checkbox" 
+                                    @click="toggleAll()" 
+                                    :checked="selectAll" 
+                                    class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer">
+                            </div>
                         </th>
                         <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400">No</th>
                         <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400">NISN/NIPD</th>

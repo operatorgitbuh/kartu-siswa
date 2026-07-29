@@ -9,17 +9,23 @@
     <style>
         @font-face {
             font-family: 'Poppins';
-            src: url(assets ('/main/fonts/Poppins-Regular.ttf')) format('truetype');
+            src: url('data:font/truetype;charset=utf-8;base64,{{ base64_encode(file_get_contents(public_path("main/fonts/Poppins-Regular.ttf"))) }}') format('truetype');
+            font-weight: 400;
+            font-style: normal;
         }
 
         @font-face {
             font-family: 'Poppins';
-            src: url(assets ('/main/fonts/Poppins-SemiBold.ttf')) format('truetype');
+            src: url('data:font/truetype;charset=utf-8;base64,{{ base64_encode(file_get_contents(public_path("main/fonts/Poppins-SemiBold.ttf"))) }}') format('truetype');
+            font-weight: 600;
+            font-style: normal;
         }
 
         @font-face {
             font-family: 'Poppins';
-            src: url(assets ('/main/fonts/Poppins-Medium.ttf')) format('truetype');
+            src: url('data:font/truetype;charset=utf-8;base64,{{ base64_encode(file_get_contents(public_path("main/fonts/Poppins-Medium.ttf"))) }}') format('truetype');
+            font-weight: 500;
+            font-style: normal;
         }
 
         /* body {

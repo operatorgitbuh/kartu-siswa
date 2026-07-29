@@ -8,6 +8,7 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
@@ -71,6 +72,15 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('/roles', RoleController::class);
         Route::resource('/permissions', PermissionController::class);
+
+        Route::get('/backup-restore-database', [BackupController::class, 'index'])->name('backup-restore-database.index');
+        Route::post('/backup-restore-database/create', [BackupController::class, 'create'])->name('backup-restore-database.create');
+        Route::get('/download/{filename}', [BackupController::class, 'download'])->name('backup-restore-database.download');
+        Route::post('/backup-restore-database/restore/{filename}', [BackupController::class, 'restore'])
+        ->name('backup-restore-database.restore')
+        ->where('filename', '.*');
+        Route::post('/backup-restore-database/restore-file', [BackupController::class, 'restoreFromUploadedFile'])->name('backup-restore-database.restore-file');
+        Route::delete('/delete/{filename}', [BackupController::class, 'destroy'])->name('backup-restore-database.destroy');
     });
     
     Route::middleware(['role:WALI_KELAS'])->group(function () {
